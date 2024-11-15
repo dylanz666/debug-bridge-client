@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Bridge Client</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <h2 class="centered">Debug Bridge Client 1.0.0</h2>
+    <div class="centered">
+        <span style="padding: 10px;">Agents: </span>
+        <select class="agent-select" id="agentSelectBox"></select>
+        <span style="padding: 10px;" id="agentName"></span>
+        <button type="button" class="gray-button" onclick="pingAgent()" id="pingButton">Ping</button>
+    </div>
+
+    <div class="centered">
+        <span style="padding: 10px;">Command: </span><input type="text" class="custom-input" id="command-input" />
+        <button type="button" class="gray-button" onclick="clearCommand()">Clear</button>
+        <button type="button" class="green-button" onclick="executeCommand()">Conduct</button>
+    </div>
+
+    <!-- output area -->
+    <div class="output-container">
+        <div id="output-content"></div>
+        <!-- screenshot area -->
+        <div id="screenshot-container">
+            <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous" />
+            <br />
+            <div>
+                Scale:
+                <select class="scale-select" id="scaleSelectBox">
+                    <option value="1.5">150%</option>
+                    <option value="1">100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.75">175%</option>
+                    <option value="2">200%</option>
+                    <option value="2.2">225%</option>
+                </select>
+                <button type="button" class="green-button" onclick="getScreenshot()"
+                    id="refresh-screenshot">Refresh</button>
+            </div>
+        </div>
+    </div>
+    <!-- big screenshot area -->
+    <div class="big-screenshot-modal" id="big-screenshot-model">
+        <span id="closeModal" class="close-modal">&times;</span>
+        <img class="modal-content" id="big-screenshot" alt="screenshot of target agent server" />
+    </div>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <div class="centered">
+        <span style="padding: 10px;">PID: </span>
+        <select class="pid-select" id="pid"></select>
+        <button type="button" class="red-button" onclick="stopPid()">Stop PID</button>
+        <button type="button" class="red-button" onclick="clearPid()">Delete PID</button>
+        <button type="button" class="red-button" onclick="clearPids()">Delete All PIDs</button>
+        <button type="button" class="gray-button" onclick="clearOutput()">Clear Output</button>
+        <button type="button" class="green-button" onclick="loadOutputByPid()">Load Output</button>
+    </div>
+</body>
+
+<script src="js/agents.js"></script>
+<script src="js/features.js"></script>
+
+</html>
