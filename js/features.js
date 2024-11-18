@@ -338,7 +338,7 @@ const closeModal = document.getElementById('closeModal');
 const bigScreenshotElement = document.getElementById('big-screenshot');
 
 // Enlarge the image
-screenshotElement.onclick = function () {
+screenshotElement.ondblclick = function () {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = screenshotElement.naturalWidth;
