@@ -475,7 +475,18 @@ function remoteDoubleClick() {
 
 // slider
 const slider = document.getElementById('slider');
-const image = document.getElementById('image');
+const screenshotContainer = document.getElementById('screenshot-container');
+const intialSreenshotContainerWidth = screenshotContainer.clientWidth;
+const contentContainer = document.getElementById('output-content');
+const intialContentContainerWidth = contentContainer.clientWidth;
 slider.addEventListener('input', function () {
-    // screenshotElement.style.width = slider.value + 'px';
+    const value = slider.value;
+    const max = slider.max;
+    const percentage = (value / max);
+
+    let scaleRate = percentage.toFixed(4) - 0.6
+    let screenshotContainerScale = 1 - scaleRate;
+    screenshotContainer.style.transform = `scale(${screenshotContainerScale})`;
+
+    contentContainer.style.width = intialContentContainerWidth + intialSreenshotContainerWidth * scaleRate + "px";
 });
