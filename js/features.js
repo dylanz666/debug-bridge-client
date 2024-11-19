@@ -476,7 +476,7 @@ function remoteDoubleClick() {
 // slider
 const slider = document.getElementById('slider');
 const screenshotContainer = document.getElementById('screenshot-container');
-const intialSreenshotContainerWidth = screenshotContainer.clientWidth;
+const intialScreenshotContainerWidth = screenshotContainer.clientWidth;
 const contentContainer = document.getElementById('output-content');
 const intialContentContainerWidth = contentContainer.clientWidth;
 slider.addEventListener('input', function () {
@@ -484,9 +484,9 @@ slider.addEventListener('input', function () {
     const max = slider.max;
     const percentage = (value / max);
 
-    let scaleRate = percentage.toFixed(4) - 0.6
+    let scaleRate = percentage.toFixed(4) - 0.6;
     let screenshotContainerScale = 1 - scaleRate;
     screenshotContainer.style.transform = `scale(${screenshotContainerScale})`;
 
-    contentContainer.style.width = intialContentContainerWidth + intialSreenshotContainerWidth * scaleRate + "px";
+    contentContainer.style.width = intialContentContainerWidth + intialScreenshotContainerWidth * scaleRate + "px";
 });
