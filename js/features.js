@@ -4,6 +4,7 @@ let loadAllOutput = true;
 let startLine = 0;
 let executeCommandIntervalId = null;
 let loadOutputIntervalId = null;
+let liveScreenshotInterval = null;
 let agents = [];
 let agentNames = [];
 
@@ -105,6 +106,7 @@ function executeCommand() {
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
     }
+    document.getElementById('output-content').innerHTML = "";
     startLine = 0;
     loadAllOutput = true;
 
@@ -187,7 +189,7 @@ function loadOutputByApi() {
         .then(data => {
             content = data.content;
             for (let i in content) {
-                log(content[i]);
+                showContent(content[i]);
             }
             startLine += content.length;
             loadAllOutput = false;
@@ -206,6 +208,15 @@ function loadOutputByPid() {
         return;
     }
     loadOutputIntervalId = setInterval(loadOutputByApi, 1000);
+}
+
+function loadAllContent() {
+    currentPid = document.getElementById("pid").value;
+    if ("" == currentPid || null == currentPid) {
+        return;
+    }
+    loadAllOutput = true;
+    loadOutputByApi();
 }
 
 function clearPids() {
@@ -308,8 +319,7 @@ function getScreenshot() {
     refreshButton.innerText = "Refreshing";
     refreshButton.className = "gray-button";
 
-    scale = document.getElementById("scaleSelectBox").value;
-    document.getElementById('screenshot').src = `http://${currentAgent}/bridge/screenshot?scale=${scale}&timestamp=${new Date().getTime()}`;
+    document.getElementById("screenshot").src = `http://${currentAgent}/bridge/screenshot?timestamp=${new Date().getTime()}`;
 
     setTimeout(function () {
         refreshButton.innerText = "Refresh";
@@ -317,8 +327,48 @@ function getScreenshot() {
     }, 1000);
 }
 
+function liveScreenshot() {
+    let liveScreenshotElement = document.getElementById("live-screenshot");
+    if (null != liveScreenshotInterval) {
+        clearInterval(liveScreenshotInterval);
+        liveScreenshotElement.className = "sky-blue-button";
+        liveScreenshotElement.innerText = "Live";
+        return
+    }
+    liveScreenshotElement.className = "red-button";
+    liveScreenshotElement.innerText = "Stop Live";
+    liveScreenshotInterval = setInterval(function () {
+        document.getElementById("screenshot").src = `http://${currentAgent}/bridge/screenshot?timestamp=${new Date().getTime()}`;
+    }, 1000);
+}
+
+let desktopWidth = 0;
+let desktopHeight = 0;
+function getDesktopScreenSize() {
+    fetch(`http://${currentAgent}/bridge/screen_size`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            desktopWidth = data.width;
+            desktopHeight = data.height;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 window.onload = setAgentIps();
 window.onload = getPids();
+window.onload = getDesktopScreenSize();
 pingAgent();
 
 // agent select box
@@ -336,9 +386,12 @@ const screenshotElement = document.getElementById('screenshot');
 const bigScreenshotModel = document.getElementById('big-screenshot-model');
 const closeModal = document.getElementById('closeModal');
 const bigScreenshotElement = document.getElementById('big-screenshot');
+// screenshotElement.ondblclick = function () {
+
+// }
 
 // Enlarge the image
-screenshotElement.ondblclick = function () {
+function zoomInScreenshot() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = screenshotElement.naturalWidth;
@@ -359,3 +412,70 @@ window.onclick = function (event) {
         bigScreenshotModel.style.display = 'none';
     }
 }
+
+// mouse move: event
+let offsetXElement = document.getElementById("offset-x");
+let offsetYElement = document.getElementById("offset-y");
+let remoteX = 0;
+let remoteY = 0;
+function getMousePosition(event) {
+    // get picture's bounding
+    let rect = screenshotElement.getBoundingClientRect();
+    // calculate mouse x,y
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+    // get picture's width,height
+    let width = rect.width;
+    let height = rect.height;
+    // calculate x,y for remote server's desktop
+    remoteX = ((x / width) * desktopWidth).toFixed(0);
+    remoteY = ((y / height) * desktopHeight).toFixed(0);
+    // show mouse position of remote server's desktop
+    offsetXElement.value = remoteX;
+    offsetYElement.value = remoteY;
+}
+
+function postRemoteAction(action, startX, startY, endX = 0, endY = 0) {
+    fetch(`http://${currentAgent}/bridge/screen_action`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            action: action,
+            start_x: startX,
+            start_y: startY,
+            end_x: endX,
+            end_y: endY
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                getScreenshot();
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// mouse event: click
+function remoteClick() {
+    postRemoteAction("click", remoteX, remoteY);
+}
+// mouse event: double click
+function remoteDoubleClick() {
+    postRemoteAction("double_click", remoteX, remoteY);
+}
+
+// slider
+const slider = document.getElementById('slider');
+const image = document.getElementById('image');
+slider.addEventListener('input', function () {
+    // screenshotElement.style.width = slider.value + 'px';
+});

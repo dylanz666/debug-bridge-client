@@ -18,7 +18,7 @@
     </div>
 
     <div class="centered">
-        <span style="padding: 10px;">Command: </span><input type="text" class="custom-input" id="command-input" />
+        <span style="padding: 10px;">Command: </span><input type="text" class="command-input" id="command-input" />
         <button type="button" class="gray-button" onclick="clearCommand()">Clear</button>
         <button type="button" class="green-button" onclick="executeCommand()">Conduct</button>
     </div>
@@ -28,20 +28,20 @@
         <div id="output-content"></div>
         <!-- screenshot area -->
         <div id="screenshot-container">
-            <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous" />
+            <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous"
+                onmousemove="getMousePosition(event)" onclick="remoteClick()" ondblclick="remoteDoubleClick"/>
             <br />
             <div>
-                Scale:
-                <select class="scale-select" id="scaleSelectBox">
-                    <option value="1">100%</option>
-                    <option value="1.25">125%</option>
-                    <option value="1.5">150%</option>
-                    <option value="1.75">175%</option>
-                    <option value="2">200%</option>
-                    <option value="2.2">225%</option>
-                </select>
+                X: <input type="text" class="offset-input" id="offset-x" />
+                Y: <input type="text" class="offset-input" id="offset-y" />
+            </div>
+            <div>
+                <button type="button" class="blue-button" onclick="zoomInScreenshot()" id="zoom-in-screenshot">Zoom
+                    In</button>
                 <button type="button" class="green-button" onclick="getScreenshot()"
                     id="refresh-screenshot">Refresh</button>
+                <button type="button" class="sky-blue-button" onclick="liveScreenshot()"
+                    id="live-screenshot">Live</button>
             </div>
         </div>
     </div>
@@ -53,13 +53,18 @@
     <canvas id="canvas" style="display: none;"></canvas>
 
     <div class="centered">
+        <input type="range" id="slider" class="slider" min="50" max="500" value="300">
+    </div>
+
+    <div class="centered">
         <span style="padding: 10px;">PID: </span>
         <select class="pid-select" id="pid"></select>
         <button type="button" class="red-button" onclick="stopPid()">Stop PID</button>
         <button type="button" class="red-button" onclick="clearPid()">Delete PID</button>
         <button type="button" class="red-button" onclick="clearPids()">Delete All PIDs</button>
-        <button type="button" class="gray-button" onclick="clearOutput()">Clear Output</button>
-        <button type="button" class="green-button" onclick="loadOutputByPid()">Load Output</button>
+        <button type="button" class="gray-button" onclick="clearOutput()">Clear Content</button>
+        <button type="button" class="green-button" onclick="loadOutputByPid()">Load Content</button>
+        <button type="button" class="green-button" onclick="loadAllContent()">Load All Content</button>
     </div>
 </body>
 

@@ -36,10 +36,21 @@
     align-items: center;
 }
 
-.custom-input {
+.command-input {
     width: 800px;
     padding: 10px;
     font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    outline: none;
+}
+
+.offset-input {
+    width: 100px;
+    padding: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #fff;
@@ -117,6 +128,44 @@
     background-color: #3e8e41;
 }
 
+.blue-button {
+    background-color: #178dee;
+    color: white;
+    padding: 11px 28px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.blue-button:hover {
+    background-color: #0362b0;
+}
+
+.sky-blue-button {
+    background-color: #5ef9f9;
+    color: white;
+    padding: 11px 28px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.sky-blue-button:hover {
+    background-color: #04c9c9;
+}
+
 .gray-button {
     background-color: lightgray;
     color: black;
@@ -162,4 +211,9 @@
     top: 20px;
     right: 30px;
     font-size: 30px;
+}
+
+.slider {
+    margin-bottom: 10px;
+    width: 800px;
 }
