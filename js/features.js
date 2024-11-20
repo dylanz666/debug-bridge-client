@@ -159,7 +159,7 @@ function loadOutputByApi() {
                 const contentContainer = document.getElementById('output-content');
                 const contentEntry = document.createElement('span');
                 const br = document.createElement('br');
-                contentEntry.innerHTML = `<span style="background-color: yellow">Conducted command: ${data.command}</span>`;
+                contentEntry.innerHTML = `<span style="background-color: yellow">${data.command}</span>`;
                 contentEntry.appendChild(br);
                 contentContainer.appendChild(contentEntry);
                 content = data.content;
