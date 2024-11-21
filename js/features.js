@@ -7,11 +7,19 @@ let loadOutputIntervalId = null;
 let liveScreenshotInterval = null;
 let agents = [];
 let agentNames = [];
+let agentName = "";
 
 function pingAgent() {
     if ("" == currentAgent || null == currentAgent || undefined == currentAgent) {
         alert("Please set agent info!");
         return
+    }
+
+    let results = agents.filter((agent) => {
+        return agent.host == currentAgent;
+    });
+    if (results.length == 1) {
+        agentName = agentNames[agents.indexOf(results[0])];
     }
     let pingButton = document.getElementById('pingButton');
     fetch(`http://${currentAgent}/ping`, {
@@ -25,18 +33,18 @@ function pingAgent() {
                 getScreenshot();
                 return response.json();
             }
-            pingButton.innerText = "Disconnected";
+            pingButton.innerText = `${agentName} - Disconnected`;
             pingButton.className = "red-button";
             throw new Error('Network response was not ok.');
         })
         .then(() => {
-            pingButton.innerText = "Connected";
+            pingButton.innerText = `${agentName} - Connected`;
             pingButton.className = "green-button";
             getScreenshot();
         })
         .catch(error => {
             console.error('Error:', error);
-            pingButton.innerText = "Disconnected";
+            pingButton.innerText = `${agentName} - Disconnected`;
             pingButton.className = "red-button";
         });
 }
@@ -49,7 +57,7 @@ function clearCommand() {
     document.getElementById('command-input').value = "";
 }
 
-function setAgentIps() {
+function setAgents() {
     for (const key in window.agents) {
         if (window.agents.hasOwnProperty(key)) {
             agentNames.push(key);
@@ -60,13 +68,19 @@ function setAgentIps() {
     var agentSelectBox = document.getElementById("agentSelectBox");
     for (var i = 0; i < agents.length; i++) {
         var option = document.createElement("option");
-        option.value = agents[i];
-        option.text = agents[i];
+        option.value = agents[i].host;
+        option.text = agents[i].host;
         agentSelectBox.appendChild(option);
     }
 
     currentAgent = document.getElementById("agentSelectBox").value;
-    document.getElementById("agentName").innerText = "Name: " + agentNames[agents.indexOf(currentAgent)];
+    let results = agents.filter((agent) => {
+        return agent.host == currentAgent;
+    });
+    if (results.length == 1) {
+        const storedDefaultDirectory = localStorage.getItem('defaultDirectory');
+        document.getElementById("default-directory").value = storedDefaultDirectory ? storedDefaultDirectory : results[0].defaultDirectory;
+    }
 }
 
 function getPids() {
@@ -110,12 +124,15 @@ function executeCommand() {
     startLine = 0;
     loadAllOutput = true;
 
-    var cmd = document.getElementById("command-input").value;
+    let cmd = document.getElementById("command-input").value;
     if ("" == cmd || null == cmd || undefined == cmd) {
         alert("Please input command!");
         return
     }
-    localStorage.setItem('command', cmd);
+    localStorage.setItem("command", cmd);
+    let defaultDirectory = document.getElementById("default-directory").value;
+    localStorage.setItem("defaultDirectory", defaultDirectory);
+    cmd = `cd ${document.getElementById("default-directory").value} && ${cmd}`
 
     fetch(`http://${currentAgent}/bridge/run`, {
         method: 'POST',
@@ -368,15 +385,9 @@ function getDesktopScreenSize() {
 }
 
 function loadCommandFromStorage() {
-    const storedData = localStorage.getItem('command');
-    document.getElementById("command-input").value = storedData ? storedData : "";
+    const storedCommand = localStorage.getItem('command');
+    document.getElementById("command-input").value = storedCommand ? storedCommand : "";
 }
-
-window.onload = loadCommandFromStorage();
-window.onload = setAgentIps();
-window.onload = getPids();
-window.onload = getDesktopScreenSize();
-pingAgent();
 
 // agent select box
 document.getElementById('agentSelectBox').addEventListener('change', function () {
@@ -384,7 +395,6 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     pingButton.innerText = "Connecting...";
     pingButton.className = "gray-button";
     currentAgent = document.getElementById("agentSelectBox").value;
-    document.getElementById("agentName").innerText = "Name: " + agentNames[agents.indexOf(currentAgent)];
     pingAgent();
 });
 
@@ -497,3 +507,9 @@ slider.addEventListener('input', function () {
 
     contentContainer.style.width = intialContentContainerWidth + intialScreenshotContainerWidth * scaleRate + "px";
 });
+
+window.onload = loadCommandFromStorage();
+window.onload = setAgents();
+window.onload = getPids();
+window.onload = getDesktopScreenSize();
+pingAgent();

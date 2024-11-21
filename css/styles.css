@@ -47,6 +47,16 @@
     outline: none;
 }
 
+.default-directory-input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    outline: none;
+}
+
 .offset-input {
     width: 100px;
     padding: 5px;
