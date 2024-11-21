@@ -395,6 +395,13 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     pingButton.innerText = "Connecting...";
     pingButton.className = "gray-button";
     currentAgent = document.getElementById("agentSelectBox").value;
+    localStorage.setItem("defaultDirectory", "");
+    let results = agents.filter((agent) => {
+        return agent.host == currentAgent;
+    });
+    if (results.length == 1) {
+        document.getElementById("default-directory").value = results[0].defaultDirectory;
+    }
     pingAgent();
 });
 
