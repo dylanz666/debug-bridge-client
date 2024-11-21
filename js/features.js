@@ -115,6 +115,7 @@ function executeCommand() {
         alert("Please input command!");
         return
     }
+    localStorage.setItem('command', cmd);
 
     fetch(`http://${currentAgent}/bridge/run`, {
         method: 'POST',
@@ -366,6 +367,12 @@ function getDesktopScreenSize() {
         });
 }
 
+function loadCommandFromStorage() {
+    const storedData = localStorage.getItem('command');
+    document.getElementById("command-input").value = storedData ? storedData : "";
+}
+
+window.onload = loadCommandFromStorage();
 window.onload = setAgentIps();
 window.onload = getPids();
 window.onload = getDesktopScreenSize();
