@@ -8,6 +8,7 @@ let liveScreenshotInterval = null;
 let agents = [];
 let agentNames = [];
 let agentName = "";
+let emptyContentIndex = 0;
 
 function pingAgent() {
     if ("" == currentAgent || null == currentAgent || undefined == currentAgent) {
@@ -206,6 +207,14 @@ function loadOutputByApi() {
         })
         .then(data => {
             content = data.content;
+            if (content.length == 0) {
+                emptyContentIndex += 1;
+                if (emptyContentIndex == 100) {
+                    clearInterval(executeCommandIntervalId);
+                    clearInterval(loadOutputIntervalId);
+                    emptyContentIndex = 0;
+                }
+            }
             for (let i in content) {
                 showContent(content[i]);
             }
@@ -218,21 +227,35 @@ function loadOutputByApi() {
 }
 
 function loadOutputByPid() {
+    currentPid = document.getElementById("pid").value;
+    if ("" == currentPid || null == currentPid) {
+        alert("Please select pid first!");
+        return;
+    }
+    if (null != executeCommandIntervalId) {
+        clearInterval(executeCommandIntervalId);
+    }
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
     }
-    currentPid = document.getElementById("pid").value;
-    if ("" == currentPid || null == currentPid) {
-        return;
-    }
+    emptyContentIndex = 0;
     loadOutputIntervalId = setInterval(loadOutputByApi, 1000);
 }
 
 function loadAllContent() {
     currentPid = document.getElementById("pid").value;
     if ("" == currentPid || null == currentPid) {
+        alert("Please select pid first!");
         return;
     }
+    if (null != executeCommandIntervalId) {
+        clearInterval(executeCommandIntervalId);
+    }
+    if (null != loadOutputIntervalId) {
+        clearInterval(loadOutputIntervalId);
+    }
+    emptyContentIndex = 0;
+    document.getElementById("output-content").innerHTML = "";
     loadAllOutput = true;
     loadOutputByApi();
 }
@@ -247,6 +270,13 @@ function clearPids() {
     })
         .then(response => {
             if (response.ok) {
+                if (null != executeCommandIntervalId) {
+                    clearInterval(executeCommandIntervalId);
+                }
+                if (null != loadOutputIntervalId) {
+                    clearInterval(loadOutputIntervalId);
+                }
+                emptyContentIndex = 0;
                 return response.json();
             }
             throw new Error('Network response was not ok.');
@@ -286,6 +316,13 @@ function clearPid() {
     })
         .then(response => {
             if (response.ok) {
+                if (null != executeCommandIntervalId) {
+                    clearInterval(executeCommandIntervalId);
+                }
+                if (null != loadOutputIntervalId) {
+                    clearInterval(loadOutputIntervalId);
+                }
+                emptyContentIndex = 0;
                 return response.json();
             }
             throw new Error('Network response was not ok.');
@@ -306,8 +343,13 @@ function stopPid() {
         alert("Please select pid first!");
         return;
     }
-    clearInterval(executeCommandIntervalId);
-    clearInterval(loadOutputIntervalId);
+    if (null != executeCommandIntervalId) {
+        clearInterval(executeCommandIntervalId);
+    }
+    if (null != loadOutputIntervalId) {
+        clearInterval(loadOutputIntervalId);
+    }
+    emptyContentIndex = 0;
     fetch(`http://${currentAgent}/bridge/pid/stop?pid=${pid}`, {
         method: 'POST',
         headers: {
