@@ -452,34 +452,78 @@ const screenshotElement = document.getElementById('screenshot');
 const bigScreenshotModel = document.getElementById('big-screenshot-model');
 const closeModal = document.getElementById('closeModal');
 const bigScreenshotElement = document.getElementById('big-screenshot');
-// screenshotElement.ondblclick = function () {
-
-// }
-
-// Enlarge the image
-function zoomInScreenshot() {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = screenshotElement.naturalWidth;
-    canvas.height = screenshotElement.naturalHeight;
-    ctx.drawImage(screenshotElement, 0, 0);
-    const imgDataUrl = canvas.toDataURL();
-
-    bigScreenshotElement.src = imgDataUrl;
-    bigScreenshotModel.style.display = 'flex';
-}
-
-closeModal.onclick = function () {
-    bigScreenshotModel.style.display = 'none';
-}
-
-window.onclick = function (event) {
-    if (event.target === bigScreenshotModel) {
-        bigScreenshotModel.style.display = 'none';
+let isMousedown = false;
+// mouse hover
+let hoverTimer;
+let lastMousePosition = { x: null, y: null };
+let isHovering = false;
+screenshotElement.addEventListener('mouseover', function () {
+    hoverTimer = setTimeout(function () {
+        if (!isMousedown) {
+            postRemoteAction("hover", remoteX, remoteY);
+            isHovering = true;
+        }
+    }, 1000);
+});
+screenshotElement.addEventListener('mousemove', function (event) {
+    const currentMousePosition = { x: event.clientX, y: event.clientY };
+    if (lastMousePosition.x === currentMousePosition.x && lastMousePosition.y === currentMousePosition.y) {
+        return;
     }
-}
 
-// mouse move: event
+    clearTimeout(hoverTimer);
+    isHovering = false;
+    lastMousePosition = currentMousePosition;
+    hoverTimer = setTimeout(function () {
+        if (!isMousedown) {
+            postRemoteAction("hover", remoteX, remoteY);
+            isHovering = true;
+        }
+    }, 1000);
+});
+screenshotElement.addEventListener('mouseout', function () {
+    clearTimeout(hoverTimer);
+    isHovering = false;
+    lastMousePosition = { x: null, y: null };
+});
+// drag
+screenshotElement.addEventListener('dragstart', (event) => {
+    // prevent default drag action of image
+    event.preventDefault();
+});
+// contextmenu
+screenshotElement.addEventListener('contextmenu', function (event) {
+    // prevent default contextmenu action of image
+    event.preventDefault();
+
+    postRemoteAction("mouse_right", remoteX, remoteY);
+});
+// select or click
+let mouseDownX = 0;
+let mouseDownY = 0;
+screenshotElement.addEventListener('mousedown', function (event) {
+    // 0 is about mouse left
+    if (event.button === 0) {
+        isMousedown = true;
+        mouseDownX = remoteX;
+        mouseDownY = remoteY;
+    }
+});
+screenshotElement.addEventListener('mouseup', function (event) {
+    // 0 is about mouse left
+    if (event.button === 0) {
+        isMousedown = false;
+        if (mouseDownX != remoteX || mouseDownY != remoteY) {
+            // action: select text            
+            postRemoteAction("select", mouseDownX, mouseDownY, remoteX, remoteY);
+        } else {
+            // action: click
+            postRemoteAction("click", remoteX, remoteY);
+        }
+    }
+});
+
+// mouse move
 let offsetXElement = document.getElementById("offset-x");
 let offsetYElement = document.getElementById("offset-y");
 let remoteX = 0;
@@ -530,13 +574,32 @@ function postRemoteAction(action, startX, startY, endX = 0, endY = 0) {
         });
 }
 
-// mouse event: click
-function remoteClick() {
-    postRemoteAction("click", remoteX, remoteY);
-}
 // mouse event: double click
 function remoteDoubleClick() {
     postRemoteAction("double_click", remoteX, remoteY);
+}
+
+// Enlarge the image
+function zoomInScreenshot() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = screenshotElement.naturalWidth;
+    canvas.height = screenshotElement.naturalHeight;
+    ctx.drawImage(screenshotElement, 0, 0);
+    const imgDataUrl = canvas.toDataURL();
+
+    bigScreenshotElement.src = imgDataUrl;
+    bigScreenshotModel.style.display = 'flex';
+}
+
+closeModal.onclick = function () {
+    bigScreenshotModel.style.display = 'none';
+}
+
+window.onclick = function (event) {
+    if (event.target === bigScreenshotModel) {
+        bigScreenshotModel.style.display = 'none';
+    }
 }
 
 // slider

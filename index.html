@@ -30,7 +30,8 @@
         <!-- screenshot area -->
         <div id="screenshot-container">
             <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous"
-                onmousemove="getMousePosition(event)" onclick="remoteClick()" ondblclick="remoteDoubleClick"/>
+                onmousemove="getMousePosition(event)" ondblclick="remoteDoubleClick"
+                draggable="false" />
             <br />
             <div>
                 X: <input type="text" class="offset-input" id="offset-x" />
