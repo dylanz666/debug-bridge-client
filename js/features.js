@@ -445,6 +445,7 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
         document.getElementById("default-directory").value = results[0].defaultDirectory;
     }
     pingAgent();
+    getPids();
 });
 
 // screenshot
