@@ -678,6 +678,13 @@ slider.addEventListener('input', function () {
     screenshotContainer.style.transform = `scale(${screenshotContainerScale})`;
 
     contentContainer.style.width = intialContentContainerWidth + intialScreenshotContainerWidth * scaleRate + "px";
+
+    if (scaleRate < 0) {
+        window.scrollTo({
+            left: document.body.scrollWidth + 1000,
+            behavior: 'smooth'
+        });
+    }
 });
 
 window.onload = loadCommandFromStorage();
