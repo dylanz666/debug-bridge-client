@@ -296,6 +296,11 @@ function showContent(message) {
     const contentEntry = document.createElement('span');
     const br = document.createElement('br');
     contentEntry.textContent = message;
+    const lowerCaseMessage = message.toLowerCase();
+    if (lowerCaseMessage.indexOf("error") > -1 || lowerCaseMessage.indexOf("fail") > -1) {
+        contentEntry.style.backgroundColor = "red";
+        contentEntry.style.color = "white";
+    }
     contentEntry.appendChild(br);
     contentContainer.appendChild(contentEntry);
     contentContainer.scrollTop = contentContainer.scrollHeight;
