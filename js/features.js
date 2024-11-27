@@ -459,6 +459,7 @@ let hoverTimer;
 let lastMousePosition = { x: null, y: null };
 let isHovering = false;
 screenshotElement.addEventListener('mouseover', function () {
+    screenshotElement.focus();
     hoverTimer = setTimeout(function () {
         if (!isMousedown) {
             postRemoteAction("hover", remoteX, remoteY);
@@ -467,6 +468,7 @@ screenshotElement.addEventListener('mouseover', function () {
     }, 1000);
 });
 screenshotElement.addEventListener('mousemove', function (event) {
+    screenshotElement.focus();
     const currentMousePosition = { x: event.clientX, y: event.clientY };
     if (lastMousePosition.x === currentMousePosition.x && lastMousePosition.y === currentMousePosition.y) {
         return;
@@ -524,6 +526,59 @@ screenshotElement.addEventListener('mouseup', function (event) {
     }
 });
 
+// mouse event: double click
+function remoteDoubleClick() {
+    postRemoteAction("double_click", remoteX, remoteY);
+}
+
+// send key to remote
+screenshotElement.addEventListener('keydown', function (event) {
+    // combination keys
+    if (event.ctrlKey) {
+        console.log(1111, "Control", event.key);
+        postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Control", event.key);
+        event.preventDefault();
+        return
+    }
+    if (event.shiftKey) {
+        console.log(222, "Shift", event.key, event.key);
+        postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Shift", event.key);
+        event.preventDefault();
+        return
+    }
+    if (event.altKey) {
+        console.log(333, "Alt", event.key);
+        postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Alt", event.key);
+        event.preventDefault();
+        return
+    }
+    // arrows
+    switch (event.key) {
+        case 'ArrowUp':
+            postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "up");
+            event.preventDefault();
+            break;
+        case 'ArrowDown':
+            postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "down");
+            event.preventDefault();
+            break;
+        case 'ArrowLeft':
+            postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "left");
+            event.preventDefault();
+            break;
+        case 'ArrowRight':
+            postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "right");
+            event.preventDefault();
+            break;
+        default:
+            // common keys
+            postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, event.key);
+            event.preventDefault();
+            break;
+    }
+});
+screenshotElement.setAttribute('tabindex', '0');
+
 // mouse move
 let offsetXElement = document.getElementById("offset-x");
 let offsetYElement = document.getElementById("offset-y");
@@ -546,7 +601,7 @@ function getMousePosition(event) {
     offsetYElement.value = remoteY;
 }
 
-function postRemoteAction(action, startX, startY, endX = 0, endY = 0) {
+function postRemoteAction(action, startX, startY, endX = 0, endY = 0, mainKey = "", bindKey = "") {
     fetch(`http://${currentAgent}/bridge/screen_action`, {
         method: 'POST',
         headers: {
@@ -557,27 +612,26 @@ function postRemoteAction(action, startX, startY, endX = 0, endY = 0) {
             start_x: startX,
             start_y: startY,
             end_x: endX,
-            end_y: endY
+            end_y: endY,
+            main_key: mainKey,
+            bind_key: bindKey
         })
     })
         .then(response => {
             if (response.ok) {
                 getScreenshot();
+                setTimeout(getScreenshot, 500);
+                setTimeout(getScreenshot, 1000);
                 return response.json();
             }
             throw new Error('Network response was not ok.');
         })
         .then(data => {
-            console.log(data);
+            // pass
         })
         .catch(error => {
             console.error('Error:', error);
         });
-}
-
-// mouse event: double click
-function remoteDoubleClick() {
-    postRemoteAction("double_click", remoteX, remoteY);
 }
 
 // Enlarge the image
