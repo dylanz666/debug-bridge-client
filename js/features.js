@@ -209,7 +209,7 @@ function loadOutputByApi() {
             content = data.content;
             if (content.length == 0) {
                 emptyContentIndex += 1;
-                if (emptyContentIndex == 100) {
+                if (emptyContentIndex == 120) {
                     clearInterval(executeCommandIntervalId);
                     clearInterval(loadOutputIntervalId);
                     emptyContentIndex = 0;
@@ -300,6 +300,9 @@ function showContent(message) {
     if (lowerCaseMessage.indexOf("error") > -1 || lowerCaseMessage.indexOf("fail") > -1) {
         contentEntry.style.backgroundColor = "red";
         contentEntry.style.color = "white";
+    }
+    if (lowerCaseMessage.indexOf("passed") > -1 || lowerCaseMessage.indexOf("success") > -1) {
+        contentEntry.style.backgroundColor = "lightgreen";
     }
     contentEntry.appendChild(br);
     contentContainer.appendChild(contentEntry);
