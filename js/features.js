@@ -734,6 +734,11 @@ function getAdbScreenshot() {
     }, 1000);
 }
 
+// adb devices select box
+document.getElementById('adbSelectBox').addEventListener('change', function () {    
+    getAdbScreenshot();
+});
+
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
 window.onload = getPids();
