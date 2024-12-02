@@ -208,12 +208,10 @@ function loadOutputByApi() {
         .then(data => {
             content = data.content;
             emptyContentIndex = content.length == 0 ? (emptyContentIndex + 1) : 0;
-            if (content.length == 0) {
-                if (emptyContentIndex == 120) {
-                    clearInterval(executeCommandIntervalId);
-                    clearInterval(loadOutputIntervalId);
-                    emptyContentIndex = 0;
-                }
+            if (emptyContentIndex == 120) {
+                clearInterval(executeCommandIntervalId);
+                clearInterval(loadOutputIntervalId);
+                emptyContentIndex = 0;
             }
             for (let i in content) {
                 showContent(content[i]);
