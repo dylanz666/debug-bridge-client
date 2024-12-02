@@ -207,8 +207,9 @@ function loadOutputByApi() {
         })
         .then(data => {
             content = data.content;
+            emptyContentIndex = content.length == 0 ? (emptyContentIndex + 1) : 0;
+            console.log(emptyContentIndex);
             if (content.length == 0) {
-                emptyContentIndex += 1;
                 if (emptyContentIndex == 120) {
                     clearInterval(executeCommandIntervalId);
                     clearInterval(loadOutputIntervalId);
@@ -735,8 +736,8 @@ function getAdbScreenshot() {
 }
 
 // adb devices select box
-document.getElementById('adbSelectBox').addEventListener('change', function () { 
-    currentAdbDevice = document.getElementById("adbSelectBox").value;   
+document.getElementById('adbSelectBox').addEventListener('change', function () {
+    currentAdbDevice = document.getElementById("adbSelectBox").value;
     getAdbScreenshot();
 });
 
