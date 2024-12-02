@@ -208,7 +208,6 @@ function loadOutputByApi() {
         .then(data => {
             content = data.content;
             emptyContentIndex = content.length == 0 ? (emptyContentIndex + 1) : 0;
-            console.log(emptyContentIndex);
             if (content.length == 0) {
                 if (emptyContentIndex == 120) {
                     clearInterval(executeCommandIntervalId);
