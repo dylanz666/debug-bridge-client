@@ -735,7 +735,8 @@ function getAdbScreenshot() {
 }
 
 // adb devices select box
-document.getElementById('adbSelectBox').addEventListener('change', function () {    
+document.getElementById('adbSelectBox').addEventListener('change', function () { 
+    currentAdbDevice = document.getElementById("adbSelectBox").value;   
     getAdbScreenshot();
 });
 
