@@ -79,8 +79,8 @@
     outline: none;
 }
 
-.scale-select {
-    width: 200px;
+.adb-select {
+    width: 250px;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;

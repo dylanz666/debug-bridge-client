@@ -30,8 +30,7 @@
         <!-- screenshot area -->
         <div id="screenshot-container">
             <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous"
-                onmousemove="getMousePosition(event)" ondblclick="remoteDoubleClick()"
-                draggable="false" />
+                onmousemove="getMousePosition(event)" ondblclick="remoteDoubleClick()" draggable="false" />
             <br />
             <div>
                 X: <input type="text" class="offset-input" id="offset-x" />
@@ -44,6 +43,11 @@
                     id="refresh-screenshot">Refresh</button>
                 <button type="button" class="sky-blue-button" onclick="liveScreenshot()"
                     id="live-screenshot">Live</button>
+            </div>
+            <div>
+                <select class="adb-select" id="adbSelectBox"></select>
+                <button type="button" class="blue-button" onclick="getAdbScreenshot()" id="adb-screenshot">ADB
+                    Screenshot</button>
             </div>
         </div>
     </div>

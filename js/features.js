@@ -454,6 +454,7 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     }
     pingAgent();
     getPids();
+    setAdbDevices();
 });
 
 // screenshot
@@ -690,8 +691,52 @@ slider.addEventListener('input', function () {
     }
 });
 
+let currentAdbDevice;
+function setAdbDevices() {
+    fetch(`http://${currentAgent}/bridge/adb_devices`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            var adbSelectBox = document.getElementById("adbSelectBox");
+            adbSelectBox.innerHTML = "";
+            for (var i = 0; i < data.length; i++) {
+                var option = document.createElement("option");
+                option.value = data[i];
+                option.text = data[i];
+                adbSelectBox.appendChild(option);
+            }
+            currentAdbDevice = document.getElementById("adbSelectBox").value;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+function getAdbScreenshot() {
+    let refreshButton = document.getElementById('refresh-screenshot')
+    refreshButton.innerText = "Refreshing";
+    refreshButton.className = "gray-button";
+
+    document.getElementById("screenshot").src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentAdbDevice}&timestamp=${new Date().getTime()}`;
+
+    setTimeout(function () {
+        refreshButton.innerText = "Refresh";
+        refreshButton.className = "green-button";
+    }, 1000);
+}
+
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
 window.onload = getPids();
 window.onload = getDesktopScreenSize();
+window.onload = setAdbDevices();
 pingAgent();
