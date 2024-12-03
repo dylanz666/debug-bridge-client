@@ -70,7 +70,7 @@ function setAgents() {
     for (var i = 0; i < agents.length; i++) {
         var option = document.createElement("option");
         option.value = agents[i].host;
-        option.text = agents[i].host;
+        option.text = agents[i].host + `(${agentNames[i]})`;
         agentSelectBox.appendChild(option);
     }
 
@@ -117,9 +117,11 @@ function getPids() {
 function executeCommand() {
     if (null != executeCommandIntervalId) {
         clearInterval(executeCommandIntervalId);
+        executeCommandIntervalId = null;
     }
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
+        loadOutputIntervalId = null;
     }
     document.getElementById('output-content').innerHTML = "";
     startLine = 0;
@@ -210,7 +212,9 @@ function loadOutputByApi() {
             emptyContentIndex = content.length == 0 ? (emptyContentIndex + 1) : 0;
             if (emptyContentIndex == 120) {
                 clearInterval(executeCommandIntervalId);
+                executeCommandIntervalId = null;
                 clearInterval(loadOutputIntervalId);
+                loadOutputIntervalId = mull;
                 emptyContentIndex = 0;
             }
             for (let i in content) {
@@ -232,9 +236,11 @@ function loadOutputByPid() {
     }
     if (null != executeCommandIntervalId) {
         clearInterval(executeCommandIntervalId);
+        executeCommandIntervalId = null;
     }
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
+        loadOutputIntervalId = null;
     }
     emptyContentIndex = 0;
     loadOutputIntervalId = setInterval(loadOutputByApi, 1000);
@@ -248,9 +254,11 @@ function loadAllContent() {
     }
     if (null != executeCommandIntervalId) {
         clearInterval(executeCommandIntervalId);
+        executeCommandIntervalId = null;
     }
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
+        loadOutputIntervalId = null;
     }
     emptyContentIndex = 0;
     document.getElementById("output-content").innerHTML = "";
@@ -270,9 +278,11 @@ function clearPids() {
             if (response.ok) {
                 if (null != executeCommandIntervalId) {
                     clearInterval(executeCommandIntervalId);
+                    executeCommandIntervalId = mull;
                 }
                 if (null != loadOutputIntervalId) {
                     clearInterval(loadOutputIntervalId);
+                    loadOutputIntervalId = null;
                 }
                 emptyContentIndex = 0;
                 return response.json();
@@ -324,9 +334,11 @@ function clearPid() {
             if (response.ok) {
                 if (null != executeCommandIntervalId) {
                     clearInterval(executeCommandIntervalId);
+                    executeCommandIntervalId = null;
                 }
                 if (null != loadOutputIntervalId) {
                     clearInterval(loadOutputIntervalId);
+                    loadOutputIntervalId = null;
                 }
                 emptyContentIndex = 0;
                 return response.json();
@@ -351,9 +363,11 @@ function stopPid() {
     }
     if (null != executeCommandIntervalId) {
         clearInterval(executeCommandIntervalId);
+        executeCommandIntervalId = null;
     }
     if (null != loadOutputIntervalId) {
         clearInterval(loadOutputIntervalId);
+        loadOutputIntervalId = null;
     }
     emptyContentIndex = 0;
     fetch(`http://${currentAgent}/bridge/pid/stop?pid=${pid}`, {
@@ -383,6 +397,11 @@ function clearOutput() {
 // unify getting screenshot
 let useAdb = false;
 function getScreenshot() {
+    if (useAdb) {
+        screenshotElement.removeAttribute('crossorigin');
+    } else {
+        screenshotElement.setAttribute('crossorigin', 'anonymous');
+    }
     showPleaseWaitInImg();
     if (useAdb) {
         setTimeout(function () {
@@ -410,6 +429,7 @@ function liveScreenshot() {
     let liveScreenshotElement = document.getElementById("live-screenshot");
     if (null != liveScreenshotInterval) {
         clearInterval(liveScreenshotInterval);
+        liveScreenshotInterval = null;
         liveScreenshotElement.className = "sky-blue-button";
         liveScreenshotElement.innerText = "Live";
         return
@@ -462,6 +482,7 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     let liveScreenshotElement = document.getElementById("live-screenshot");
     if (null != liveScreenshotInterval) {
         clearInterval(liveScreenshotInterval);
+        liveScreenshotInterval = null;
         liveScreenshotElement.className = "sky-blue-button";
         liveScreenshotElement.innerText = "Live";
     }
@@ -774,31 +795,24 @@ function getAdbScreenshot() {
 const adbSelectBox = document.getElementById('adbSelectBox');
 adbSelectBox.addEventListener('change', function () {
     currentAdbDevice = document.getElementById("adbSelectBox").value;
-    if (useAdb) {
-        screenshotElement.removeAttribute('crossorigin');
-    } else {
-        screenshotElement.setAttribute('crossorigin', 'anonymous');
-    }
     getScreenshot();
 });
 
 // switch event listener
 const toggleSwitch = document.getElementById('toggleSwitch');
+const wakeUpButton = document.getElementById('wakeUp');
 toggleSwitch.addEventListener('change', function () {
     let liveScreenshotElement = document.getElementById("live-screenshot");
     if (null != liveScreenshotInterval) {
         clearInterval(liveScreenshotInterval);
+        liveScreenshotInterval = null;
         liveScreenshotElement.className = "sky-blue-button";
         liveScreenshotElement.innerText = "Live";
     }
 
     useAdb = this.checked;
-    if (useAdb) {
-        screenshotElement.removeAttribute('crossorigin');
-    } else {
-        screenshotElement.setAttribute('crossorigin', 'anonymous');
-    }
     adbSelectBox.style.display = this.checked ? 'inline' : 'none';
+    wakeUpButton.style.display = this.checked ? 'inline' : 'none';
     getScreenshot();
 });
 
@@ -813,16 +827,37 @@ function showPleaseWaitInImg() {
 }
 
 function refreshScreenshot() {
-    if (useAdb) {
-        screenshotElement.removeAttribute('crossorigin');
-    } else {
-        screenshotElement.setAttribute('crossorigin', 'anonymous');
-    }
     getScreenshot();
 }
 
-// default to hide adb select box
+function wakeUpAndroidDevice() {
+    cmd = `adb -s ${currentAdbDevice} shell input keyevent KEYCODE_WAKEUP`;
+
+    fetch(`http://${currentAgent}/bridge/run`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Bearer YOUR_TOKEN'
+        },
+        body: JSON.stringify({ command: cmd })
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            getScreenshot();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// default to hide adb select box and wake up button
 adbSelectBox.style.display = 'none';
+wakeUpButton.style.display = 'none';
 
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
