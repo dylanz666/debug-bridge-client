@@ -214,7 +214,7 @@ function loadOutputByApi() {
                 clearInterval(executeCommandIntervalId);
                 executeCommandIntervalId = null;
                 clearInterval(loadOutputIntervalId);
-                loadOutputIntervalId = mull;
+                loadOutputIntervalId = null;
                 emptyContentIndex = 0;
             }
             for (let i in content) {
@@ -278,7 +278,7 @@ function clearPids() {
             if (response.ok) {
                 if (null != executeCommandIntervalId) {
                     clearInterval(executeCommandIntervalId);
-                    executeCommandIntervalId = mull;
+                    executeCommandIntervalId = null;
                 }
                 if (null != loadOutputIntervalId) {
                     clearInterval(loadOutputIntervalId);
