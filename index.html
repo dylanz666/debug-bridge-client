@@ -32,6 +32,20 @@
             <img id="screenshot" alt="screenshot of target agent server" crossorigin="anonymous"
                 onmousemove="getMousePosition(event)" ondblclick="remoteDoubleClick()" draggable="false" />
             <br />
+
+            <div>
+                <span>Server</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSwitch">
+                    <span class="switchSlider"></span>
+                </label>
+                <span>ADB</span>
+                <select class="adb-select" id="adbSelectBox"></select>
+                <!-- <button type="button" class="blue-button" onclick="getAdbScreenshot()" id="adb-screenshot">ADB
+                    Screenshot</button> -->
+            </div>
+            <br />
+
             <div>
                 X: <input type="text" class="offset-input" id="offset-x" />
                 Y: <input type="text" class="offset-input" id="offset-y" />
@@ -39,15 +53,10 @@
             <div>
                 <button type="button" class="blue-button" onclick="zoomInScreenshot()" id="zoom-in-screenshot">Zoom
                     In</button>
-                <button type="button" class="green-button" onclick="getScreenshot()"
+                <button type="button" class="green-button" onclick="refreshScreenshot()"
                     id="refresh-screenshot">Refresh</button>
                 <button type="button" class="sky-blue-button" onclick="liveScreenshot()"
                     id="live-screenshot">Live</button>
-            </div>
-            <div>
-                <select class="adb-select" id="adbSelectBox"></select>
-                <button type="button" class="blue-button" onclick="getAdbScreenshot()" id="adb-screenshot">ADB
-                    Screenshot</button>
             </div>
         </div>
     </div>

@@ -380,8 +380,21 @@ function clearOutput() {
     document.getElementById("output-content").innerHTML = "";
 }
 
+// unify getting screenshot
+let useAdb = false;
 function getScreenshot() {
-    let refreshButton = document.getElementById('refresh-screenshot')
+    showPleaseWaitInImg();
+    if (useAdb) {
+        setTimeout(function () {
+            getAdbScreenshot();
+        }, 100);
+        return;
+    }
+    getServerScreenshot();
+}
+
+function getServerScreenshot() {
+    let refreshButton = document.getElementById('refresh-screenshot');
     refreshButton.innerText = "Refreshing";
     refreshButton.className = "gray-button";
 
@@ -403,9 +416,16 @@ function liveScreenshot() {
     }
     liveScreenshotElement.className = "red-button";
     liveScreenshotElement.innerText = "Stop Live";
+    const interval = useAdb ? 3500 : 1000;
     liveScreenshotInterval = setInterval(function () {
-        document.getElementById("screenshot").src = `http://${currentAgent}/bridge/screenshot?timestamp=${new Date().getTime()}`;
-    }, 1000);
+        let element = document.getElementById("screenshot");
+        element.setAttribute('crossorigin', 'anonymous');
+        if (useAdb) {
+            element.src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentAdbDevice}&timestamp=${new Date().getTime()}`;
+            return
+        }
+        element.src = `http://${currentAgent}/bridge/screenshot?timestamp=${new Date().getTime()}`;
+    }, interval);
 }
 
 let desktopWidth = 0;
@@ -439,6 +459,22 @@ function loadCommandFromStorage() {
 
 // agent select box
 document.getElementById('agentSelectBox').addEventListener('change', function () {
+    let liveScreenshotElement = document.getElementById("live-screenshot");
+    if (null != liveScreenshotInterval) {
+        clearInterval(liveScreenshotInterval);
+        liveScreenshotElement.className = "sky-blue-button";
+        liveScreenshotElement.innerText = "Live";
+    }
+
+    // mock: close switch
+    const toggleSwitch = document.getElementById('toggleSwitch');
+    toggleSwitch.checked = false;
+    const event = new Event('change', {
+        bubbles: true,
+        cancelable: true
+    });
+    toggleSwitch.dispatchEvent(event);
+
     let pingButton = document.getElementById("pingButton");
     pingButton.innerText = "Connecting...";
     pingButton.className = "gray-button";
@@ -720,7 +756,9 @@ function setAdbDevices() {
 }
 
 function getAdbScreenshot() {
-    let refreshButton = document.getElementById('refresh-screenshot')
+    screenshotElement.setAttribute('crossorigin', 'anonymous');
+
+    let refreshButton = document.getElementById('refresh-screenshot');
     refreshButton.innerText = "Refreshing";
     refreshButton.className = "gray-button";
 
@@ -732,11 +770,59 @@ function getAdbScreenshot() {
     }, 1000);
 }
 
-// adb devices select box
-document.getElementById('adbSelectBox').addEventListener('change', function () {
+// adb select box event listener
+const adbSelectBox = document.getElementById('adbSelectBox');
+adbSelectBox.addEventListener('change', function () {
     currentAdbDevice = document.getElementById("adbSelectBox").value;
-    getAdbScreenshot();
+    if (useAdb) {
+        screenshotElement.removeAttribute('crossorigin');
+    } else {
+        screenshotElement.setAttribute('crossorigin', 'anonymous');
+    }
+    getScreenshot();
 });
+
+// switch event listener
+const toggleSwitch = document.getElementById('toggleSwitch');
+toggleSwitch.addEventListener('change', function () {
+    let liveScreenshotElement = document.getElementById("live-screenshot");
+    if (null != liveScreenshotInterval) {
+        clearInterval(liveScreenshotInterval);
+        liveScreenshotElement.className = "sky-blue-button";
+        liveScreenshotElement.innerText = "Live";
+    }
+
+    useAdb = this.checked;
+    if (useAdb) {
+        screenshotElement.removeAttribute('crossorigin');
+    } else {
+        screenshotElement.setAttribute('crossorigin', 'anonymous');
+    }
+    adbSelectBox.style.display = this.checked ? 'inline' : 'none';
+    getScreenshot();
+});
+
+function showPleaseWaitInImg() {
+    const width = screenshotElement.width;
+    const height = screenshotElement.height;
+    if (screenshotElement.src && width && height) {
+        screenshotElement.style.width = `${width}px`;
+        screenshotElement.style.height = `${height}px`;
+    }
+    screenshotElement.src = "please-wait.webp";
+}
+
+function refreshScreenshot() {
+    if (useAdb) {
+        screenshotElement.removeAttribute('crossorigin');
+    } else {
+        screenshotElement.setAttribute('crossorigin', 'anonymous');
+    }
+    getScreenshot();
+}
+
+// default to hide adb select box
+adbSelectBox.style.display = 'none';
 
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
