@@ -441,7 +441,7 @@ function liveScreenshot() {
         let element = document.getElementById("screenshot");
         element.setAttribute('crossorigin', 'anonymous');
         if (useAdb) {
-            element.src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentAdbDevice}&timestamp=${new Date().getTime()}`;
+            element.src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentDeviceId}&timestamp=${new Date().getTime()}`;
             return
         }
         element.src = `http://${currentAgent}/bridge/screenshot?timestamp=${new Date().getTime()}`;
@@ -450,8 +450,9 @@ function liveScreenshot() {
 
 let desktopWidth = 0;
 let desktopHeight = 0;
-function getDesktopScreenSize() {
-    fetch(`http://${currentAgent}/bridge/screen_size`, {
+function getScreenSize(currentDeviceId) {
+    const parameters = currentDeviceId ? `?device_id=${currentDeviceId}` : '';
+    fetch(`http://${currentAgent}/bridge/screen_size${parameters}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -509,6 +510,7 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     }
     pingAgent();
     getPids();
+    getScreenSize();
     setAdbDevices();
 });
 
@@ -746,7 +748,7 @@ slider.addEventListener('input', function () {
     }
 });
 
-let currentAdbDevice;
+let currentDeviceId;
 function setAdbDevices() {
     fetch(`http://${currentAgent}/bridge/adb_devices`, {
         method: 'GET',
@@ -769,7 +771,7 @@ function setAdbDevices() {
                 option.text = data[i];
                 adbSelectBox.appendChild(option);
             }
-            currentAdbDevice = document.getElementById("adbSelectBox").value;
+            currentDeviceId = document.getElementById("adbSelectBox").value;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -783,7 +785,7 @@ function getAdbScreenshot() {
     refreshButton.innerText = "Refreshing";
     refreshButton.className = "gray-button";
 
-    document.getElementById("screenshot").src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentAdbDevice}&timestamp=${new Date().getTime()}`;
+    document.getElementById("screenshot").src = `http://${currentAgent}/bridge/adb_screenshot?device_id=${currentDeviceId}&timestamp=${new Date().getTime()}`;
 
     setTimeout(function () {
         refreshButton.innerText = "Refresh";
@@ -794,7 +796,8 @@ function getAdbScreenshot() {
 // adb select box event listener
 const adbSelectBox = document.getElementById('adbSelectBox');
 adbSelectBox.addEventListener('change', function () {
-    currentAdbDevice = document.getElementById("adbSelectBox").value;
+    currentDeviceId = document.getElementById("adbSelectBox").value;
+    getScreenSize(currentDeviceId);
     getScreenshot();
 });
 
@@ -813,6 +816,7 @@ toggleSwitch.addEventListener('change', function () {
     useAdb = this.checked;
     adbSelectBox.style.display = this.checked ? 'inline' : 'none';
     wakeUpButton.style.display = this.checked ? 'inline' : 'none';
+    this.checked ? getScreenSize(currentDeviceId) : getScreenSize();
     getScreenshot();
 });
 
@@ -831,7 +835,7 @@ function refreshScreenshot() {
 }
 
 function wakeUpAndroidDevice() {
-    cmd = `adb -s ${currentAdbDevice} shell input keyevent KEYCODE_WAKEUP`;
+    cmd = `adb -s ${currentDeviceId} shell input keyevent KEYCODE_WAKEUP`;
 
     fetch(`http://${currentAgent}/bridge/run`, {
         method: 'POST',
@@ -862,6 +866,6 @@ wakeUpButton.style.display = 'none';
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
 window.onload = getPids();
-window.onload = getDesktopScreenSize();
+window.onload = getScreenSize();
 window.onload = setAdbDevices();
 pingAgent();
