@@ -403,13 +403,16 @@ function getScreenshot() {
         screenshotElement.setAttribute('crossorigin', 'anonymous');
     }
     showPleaseWaitInImg();
-    if (useAdb) {
-        setTimeout(function () {
-            getAdbScreenshot();
-        }, 100);
+    if (!useAdb) {
+        getServerScreenshot();
         return;
     }
-    getServerScreenshot();
+    const intervalId = setInterval(() => {
+        if (currentDeviceId) {
+            getAdbScreenshot();
+            clearInterval(intervalId);
+        }
+    }, 100);
 }
 
 function getServerScreenshot() {
@@ -511,7 +514,6 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
     pingAgent();
     getPids();
     getScreenSize();
-    setAdbDevices();
 });
 
 // screenshot
@@ -531,7 +533,7 @@ screenshotElement.addEventListener('mouseover', function () {
             postRemoteAction("hover", remoteX, remoteY);
             isHovering = true;
         }
-    }, 1000);
+    }, 2000);
 });
 screenshotElement.addEventListener('mousemove', function (event) {
     screenshotElement.focus();
@@ -548,7 +550,7 @@ screenshotElement.addEventListener('mousemove', function (event) {
             postRemoteAction("hover", remoteX, remoteY);
             isHovering = true;
         }
-    }, 1000);
+    }, 2000);
 });
 screenshotElement.addEventListener('mouseout', function () {
     clearTimeout(hoverTimer);
@@ -674,6 +676,7 @@ function postRemoteAction(action, startX, startY, endX = 0, endY = 0, mainKey = 
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+            device_id: currentDeviceId,
             action: action,
             start_x: startX,
             start_y: startY,
@@ -684,13 +687,17 @@ function postRemoteAction(action, startX, startY, endX = 0, endY = 0, mainKey = 
         })
     })
         .then(response => {
-            if (response.ok) {
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            if (currentDeviceId) {
+                setTimeout(getScreenshot, 500);
+            } else {
                 getScreenshot();
                 setTimeout(getScreenshot, 500);
                 setTimeout(getScreenshot, 1000);
-                return response.json();
             }
-            throw new Error('Network response was not ok.');
+            return response.json();
         })
         .then(data => {
             // pass
@@ -748,7 +755,7 @@ slider.addEventListener('input', function () {
     }
 });
 
-let currentDeviceId;
+let currentDeviceId = "";
 function setAdbDevices() {
     fetch(`http://${currentAgent}/bridge/adb_devices`, {
         method: 'GET',
@@ -814,9 +821,20 @@ toggleSwitch.addEventListener('change', function () {
     }
 
     useAdb = this.checked;
+    if (!this.checked) {
+        currentDeviceId = "";
+        getScreenSize();
+    } else {
+        setAdbDevices();
+        const intervalId = setInterval(() => {
+            if (currentDeviceId) {
+                getScreenSize(currentDeviceId);
+                clearInterval(intervalId);
+            }
+        }, 100);
+    }
     adbSelectBox.style.display = this.checked ? 'inline' : 'none';
     wakeUpButton.style.display = this.checked ? 'inline' : 'none';
-    this.checked ? getScreenSize(currentDeviceId) : getScreenSize();
     getScreenshot();
 });
 
@@ -867,5 +885,4 @@ window.onload = loadCommandFromStorage();
 window.onload = setAgents();
 window.onload = getPids();
 window.onload = getScreenSize();
-window.onload = setAdbDevices();
 pingAgent();
