@@ -80,7 +80,10 @@ function setAgents() {
     });
     if (results.length == 1) {
         const storedDefaultDirectory = localStorage.getItem('defaultDirectory');
+        // default directory
         document.getElementById("default-directory").value = storedDefaultDirectory ? storedDefaultDirectory : results[0].defaultDirectory;
+        // deafult command       
+        document.getElementById("command-input").value = results[0].defaultCommand;
     }
 }
 
@@ -509,7 +512,10 @@ document.getElementById('agentSelectBox').addEventListener('change', function ()
         return agent.host == currentAgent;
     });
     if (results.length == 1) {
+        // default directory
         document.getElementById("default-directory").value = results[0].defaultDirectory;
+        // deafult command       
+        document.getElementById("command-input").value = results[0].defaultCommand;
     }
     pingAgent();
     getPids();
@@ -603,19 +609,16 @@ function remoteDoubleClick() {
 screenshotElement.addEventListener('keydown', function (event) {
     // combination keys
     if (event.ctrlKey) {
-        console.log(1111, "Control", event.key);
         postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Control", event.key);
         event.preventDefault();
         return
     }
     if (event.shiftKey) {
-        console.log(222, "Shift", event.key, event.key);
         postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Shift", event.key);
         event.preventDefault();
         return
     }
     if (event.altKey) {
-        console.log(333, "Alt", event.key);
         postRemoteAction("keyboard_input", remoteX, remoteY, 0, 0, "Alt", event.key);
         event.preventDefault();
         return
