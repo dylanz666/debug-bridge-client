@@ -80,7 +80,7 @@
 }
 
 .adb-select {
-    width: 250px;
+    width: 220px;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -123,7 +123,7 @@
 .small-green-button {
     background-color: #4CAF50;
     color: white;
-    padding: 11px 6px;
+    padding: 10px 6px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -158,6 +158,25 @@
     background-color: rgb(250, 18, 18);
 }
 
+.small-red-button {
+    background-color: rgb(245, 114, 114);
+    color: white;
+    padding: 10px 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.small-red-button:hover {
+    background-color: rgb(250, 18, 18);
+}
+
 .blue-button {
     background-color: #178dee;
     color: white;
@@ -180,7 +199,7 @@
 .small-blue-button {
     background-color: #178dee;
     color: white;
-    padding: 11px 6px;
+    padding: 10px 6px;
     text-align: center;
     text-decoration: none;
     display: inline-block;

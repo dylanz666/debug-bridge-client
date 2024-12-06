@@ -741,7 +741,7 @@ const contentContainer = document.getElementById('output-content');
 const intialContentContainerWidth = contentContainer.getBoundingClientRect().width;
 slider.addEventListener('input', function () {
     const value = slider.value;
-    
+
     screenshotContainer.style.width = parseInt(intialScreenshotContainerWidth) - parseInt(value) + 300 + "px";
 
     contentContainer.style.width = parseInt(window.innerWidth - screenshotContainer.getBoundingClientRect().width) - 60 + "px";
@@ -804,6 +804,7 @@ adbSelectBox.addEventListener('change', function () {
 const toggleSwitch = document.getElementById('toggleSwitch');
 const wakeUpButton = document.getElementById('wakeUp');
 const refreshDevicesButton = document.getElementById('refresh-devices');
+const rebootButton = document.getElementById('reboot');
 toggleSwitch.addEventListener('change', function () {
     let liveScreenshotElement = document.getElementById("live-screenshot");
     if (null != liveScreenshotInterval) {
@@ -829,6 +830,7 @@ toggleSwitch.addEventListener('change', function () {
     adbSelectBox.style.display = this.checked ? 'inline' : 'none';
     wakeUpButton.style.display = this.checked ? 'inline' : 'none';
     refreshDevicesButton.style.display = this.checked ? 'inline' : 'none';
+    rebootButton.style.display = this.checked ? 'inline' : 'none';
     getScreenshot();
 });
 
@@ -890,10 +892,36 @@ function wakeUpAndroidDevice() {
         });
 }
 
+function rebootAndroidDevice() {
+    cmd = `adb -s ${currentDeviceId} reboot`;
+
+    fetch(`http://${currentAgent}/bridge/run`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Bearer YOUR_TOKEN'
+        },
+        body: JSON.stringify({ command: cmd })
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            getScreenshot();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 // default to hide adb select box and wake up button
 adbSelectBox.style.display = 'none';
 wakeUpButton.style.display = 'none';
 refreshDevicesButton.style.display = 'none';
+rebootButton.style.display = 'none';
 
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();
