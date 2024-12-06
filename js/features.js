@@ -814,6 +814,7 @@ adbSelectBox.addEventListener('change', function () {
 // switch event listener
 const toggleSwitch = document.getElementById('toggleSwitch');
 const wakeUpButton = document.getElementById('wakeUp');
+const refreshDevicesButton = document.getElementById('refresh-devices');
 toggleSwitch.addEventListener('change', function () {
     let liveScreenshotElement = document.getElementById("live-screenshot");
     if (null != liveScreenshotInterval) {
@@ -838,8 +839,28 @@ toggleSwitch.addEventListener('change', function () {
     }
     adbSelectBox.style.display = this.checked ? 'inline' : 'none';
     wakeUpButton.style.display = this.checked ? 'inline' : 'none';
+    refreshDevicesButton.style.display = this.checked ? 'inline' : 'none';
     getScreenshot();
 });
+
+function refreshDevices() {
+    if (!useAdb) {
+        currentDeviceId = "";
+        getScreenSize();
+    } else {
+        setAdbDevices();
+        const intervalId = setInterval(() => {
+            if (currentDeviceId) {
+                getScreenSize(currentDeviceId);
+                clearInterval(intervalId);
+            }
+        }, 100);
+    }
+    adbSelectBox.style.display = useAdb ? 'inline' : 'none';
+    wakeUpButton.style.display = useAdb ? 'inline' : 'none';
+    refreshDevicesButton.style.display = useAdb ? 'inline' : 'none';
+    getScreenshot();
+}
 
 function showPleaseWaitInImg() {
     const width = screenshotElement.width;
@@ -883,6 +904,7 @@ function wakeUpAndroidDevice() {
 // default to hide adb select box and wake up button
 adbSelectBox.style.display = 'none';
 wakeUpButton.style.display = 'none';
+refreshDevicesButton.style.display = 'none';
 
 window.onload = loadCommandFromStorage();
 window.onload = setAgents();

@@ -116,6 +116,29 @@
     transition: all 0.3s;
 }
 
+.green-button:hover {
+    background-color: #3e8e41;
+}
+
+.small-green-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 11px 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.small-green-button:hover {
+    background-color: #3e8e41;
+}
+
 .red-button {
     background-color: rgb(245, 114, 114);
     color: white;
@@ -133,10 +156,6 @@
 
 .red-button:hover {
     background-color: rgb(250, 18, 18);
-}
-
-.green-button:hover {
-    background-color: #3e8e41;
 }
 
 .blue-button {
