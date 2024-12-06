@@ -21,7 +21,7 @@
     flex-direction: column;
     align-items: center;
     grid-template-rows: auto auto;
-    transition: transform 0.3s;
+    /* transition: transform 0.3s; */
 }
 
 #screenshot {

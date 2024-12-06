@@ -736,26 +736,15 @@ window.onclick = function (event) {
 // slider
 const slider = document.getElementById('slider');
 const screenshotContainer = document.getElementById('screenshot-container');
-const intialScreenshotContainerWidth = screenshotContainer.clientWidth;
+const intialScreenshotContainerWidth = screenshotContainer.getBoundingClientRect().width;
 const contentContainer = document.getElementById('output-content');
-const intialContentContainerWidth = contentContainer.clientWidth;
+const intialContentContainerWidth = contentContainer.getBoundingClientRect().width;
 slider.addEventListener('input', function () {
     const value = slider.value;
-    const max = slider.max;
-    const percentage = (value / max);
+    
+    screenshotContainer.style.width = parseInt(intialScreenshotContainerWidth) - parseInt(value) + 300 + "px";
 
-    let scaleRate = percentage.toFixed(4) - 0.6;
-    let screenshotContainerScale = 1 - scaleRate;
-    screenshotContainer.style.transform = `scale(${screenshotContainerScale})`;
-
-    contentContainer.style.width = intialContentContainerWidth + intialScreenshotContainerWidth * scaleRate + "px";
-
-    if (scaleRate < 0) {
-        window.scrollTo({
-            left: document.body.scrollWidth + 1000,
-            behavior: 'smooth'
-        });
-    }
+    contentContainer.style.width = parseInt(window.innerWidth - screenshotContainer.getBoundingClientRect().width) - 60 + "px";
 });
 
 let currentDeviceId = "";
